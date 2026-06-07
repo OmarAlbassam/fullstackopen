@@ -1,20 +1,46 @@
 import { useState } from 'react'
-import Note from './components/Note'
 
 
-const App = (props) => {
-  const [notes, setNotes] = useState(props.notes)
+
+
+
+const App = () => {
+  const [persons, setPersons] = useState([
+    { name: 'Arto Hellas' }
+  ]) 
+  const [newName, setNewName] = useState('')
+
+
+  const addPerson = (event) => {
+    event.preventDefault()
+    const newPersons = persons.concat({ name: newName })
+    setPersons(newPersons)
+    setNewName("")
+} 
+
+ const handleNameChange = (event) => {
+  setNewName(event.target.value)
+ }
 
   return (
     <div>
-      <h1>Notes</h1>
+      <h2>Phonebook</h2>
+      <form onSubmit={addPerson}>
+        <div>
+          name: <input value={newName} onChange={handleNameChange}/>
+        </div>
+        <div>
+          <button type="submit">add</button>
+        </div>
+      </form>
+      <h2>Numbers</h2>
       <ul>
-        {notes.map(note => 
-          <Note key={note.id} note={note} />
+        {persons.map((person, i) =>
+          <li key={i}>{person.name}</li>
         )}
       </ul>
     </div>
   )
 }
 
-export default App 
+export default App

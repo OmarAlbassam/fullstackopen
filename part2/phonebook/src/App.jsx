@@ -18,13 +18,13 @@ const Add = ({ addPerson, newName, newNumber, handleNameChange, handleNumberChan
   )
 }
 
-const Numbers = ({filteredPersons}) => {
+const Numbers = ({filteredPersons, remove}) => {
   return(
     <div>
       <h2>Numbers</h2>
       <ul>
-        {filteredPersons.map((person, i) =>
-          <li key={i}>{person.name} {person.number}</li>
+        {filteredPersons.map((person) =>
+          <li key={person.id}>{person.name} {person.number}<button onClick={() => remove(person)}>delete</button></li>
         )}
       </ul>
     </div>
@@ -47,7 +47,8 @@ const App = () => {
 const addPerson = (event) => {
   event.preventDefault()
   if (!persons.some(person => person.name === newName) || !persons.some(person => person.number === newNumber)) {
-    const newPerson = {name: newName, number: newNumber}
+    const nextId = persons.length > 0 ? Math.max(...persons.map(p => Number(p.id))) + 1 : 1
+    const newPerson = {id: nextId, name: newName, number: newNumber}
     service.create(newPerson).then(newEntry => {
       setPersons(persons.concat(newEntry))
       setNewName('')
@@ -59,6 +60,15 @@ const addPerson = (event) => {
     alert(`${newName} or ${newNumber} is already added to phonebook`)
   }
 } 
+
+const remove = (person) => {
+  if(window.confirm(`are you sure you want to delete ${person.name}`)) {
+    service.deleteNum(person.id).then(() => {
+      setPersons(persons.filter(p => p.id !== person.id))
+    })
+  }
+}
+
 
  const handleNameChange = (event) => {
   setNewName(event.target.value)
@@ -79,7 +89,7 @@ const handleNumberChange = (event) => {
       <h2>Phonebook</h2>
       <Filter search={search} handleSearchChange={handleSearchChange} />
       <Add addPerson={addPerson} newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />
-      <Numbers filteredPersons={filteredPersons} />
+      <Numbers filteredPersons={filteredPersons} remove={remove} />
     </div>
   )
 }

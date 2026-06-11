@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import axios, { Axios } from 'axios'
+import service from './Service'
+
 const Filter = ({ search, handleSearchChange }) => (
   <div>filter shown with <input value={search} onChange={handleSearchChange}/></div>
 )
@@ -31,9 +32,6 @@ const Numbers = ({filteredPersons}) => {
 }
 
 
-
-
-
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
@@ -41,9 +39,7 @@ const App = () => {
   const [search, setSearch] = useState('')
 
   useEffect((() => {
-    axios.get('http://localhost:3001/persons ').then(response => {
-      setPersons(response.data)
-    })
+    service.getAll().then(data => setPersons(data))
   }),
   [])
 
@@ -51,10 +47,13 @@ const App = () => {
 const addPerson = (event) => {
   event.preventDefault()
   if (!persons.some(person => person.name === newName) || !persons.some(person => person.number === newNumber)) {
-    const newPersons = persons.concat({ name: newName, number: newNumber })
-      setPersons(newPersons)
+    const newPerson = {name: newName, number: newNumber}
+    service.create(newPerson).then(newEntry => {
+      setPersons(persons.concat(newEntry))
       setNewName('')
       setNewNumber('')
+    })
+      
     }
   else {
     alert(`${newName} or ${newNumber} is already added to phonebook`)
